@@ -275,6 +275,7 @@ const Dashboard = () => {
 
   return (
     <div
+      className="dashboard-padding"
       style={{
         minHeight: '100vh',
         background: 'var(--bg-base)',
@@ -286,6 +287,7 @@ const Dashboard = () => {
 
         {/* ── Header ── */}
         <header
+          className="dashboard-header"
           style={{
             display: 'flex',
             alignItems: 'center',
@@ -387,6 +389,7 @@ const Dashboard = () => {
 
         {/* ── Main layout ── */}
         <div
+          className="dashboard-main-grid"
           style={{
             display: 'grid',
             gridTemplateColumns: '420px 1fr',
@@ -507,12 +510,7 @@ const Dashboard = () => {
               value={panelData.lastCleaned}
               accent="#818CF8"
             />
-            <InfoRow
-              icon={<Thermometer size={14} />}
-              label="PANEL TEMPERATURE"
-              value={`${panelData.temperature}°C`}
-              accent="#F59E0B"
-            />
+            {/* Temperature InfoRow removed */}
 
             {/* Reporting interval */}
             <div
@@ -576,20 +574,6 @@ const Dashboard = () => {
                 value={panelData.actualPower}
                 unit="W"
                 accent={status.color}
-              />
-              <MetricCard
-                icon={<Gauge size={15} />}
-                label="VOLTAGE"
-                value={panelData.voltage}
-                unit="V"
-                accent="#A78BFA"
-              />
-              <MetricCard
-                icon={<Activity size={15} />}
-                label="CURRENT"
-                value={panelData.current}
-                unit="A"
-                accent="#34D399"
               />
             </div>
 

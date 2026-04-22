@@ -54,6 +54,31 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Responsive adjustments */
+@media (max-width: 900px) {
+  .dashboard-main-grid {
+    grid-template-columns: 1fr !important;
+    gap: 24px !important;
+  }
+  .dashboard-padding {
+    padding: 12px !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .dashboard-main-grid {
+    gap: 10px !important;
+  }
+  .dashboard-padding {
+    padding: 4px !important;
+  }
+  .dashboard-header {
+    flex-direction: column !important;
+    gap: 12px !important;
+    align-items: flex-start !important;
+  }
+}
+
 button { cursor: pointer; font-family: inherit; }
 select { font-family: inherit; }
 a { text-decoration: none; color: inherit; }
