@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
+  AreaChart,
+  Area,
   LineChart,
   Line,
   XAxis,
@@ -7,82 +9,127 @@ import {
   CartesianGrid,
   Tooltip,
   ResponsiveContainer,
-  Area,
-  
-  AreaChart
 } from 'recharts';
 import { getStatus } from '../utils/getStatus';
 
-const Chart = ({ data, type = 'line', dataKey = 'ratio', showArea = false }) => {
-  const lastValue = data[data.length - 1]?.[dataKey] || 0;
-  const status = getStatus(lastValue);
-  
-  const CustomTooltip = ({ active, payload, label }) => {
-    if (active && payload && payload.length) {
-      return (
-        <div className="bg-white p-3 rounded-lg shadow-lg border border-slate-200">
-          <p className="text-slate-500 text-xs mb-1">{label}</p>
-          <p className="text-slate-900 font-semibold">
-            {dataKey === 'ratio' 
-              ? `${(payload[0].value * 100).toFixed(1)}%`
-              : payload[0].value}
-          </p>
-        </div>
-      );
-    }
-    return null;
+// ─── Tooltip ──────────────────────────────────────────────────────────────────
+// Defined OUTSIDE Chart to prevent recreation on every render (fixes flicker).
+
+const CustomTooltip = ({ active, payload, label, dataKey }) => {
+  if (!active || !payload?.length) return null;
+  const value = payload[0].value;
+  const formatted =
+    dataKey === 'ratio'
+      ? `${(value * 100).toFixed(1)}%`
+      : dataKey === 'power'
+      ? `${value} W`
+      : dataKey === 'voltage'
+      ? `${value} V`
+      : value;
+
+  return (
+    <div
+      style={{
+        background: '#0C1220',
+        border: '0.5px solid #1E293B',
+        borderRadius: 10,
+        padding: '8px 12px',
+        fontFamily: 'var(--font-mono)',
+      }}
+    >
+      <p style={{ color: '#64748B', fontSize: 10, marginBottom: 4 }}>{label}</p>
+      <p style={{ color: '#F0F4FF', fontSize: 13, fontWeight: 500 }}>{formatted}</p>
+    </div>
+  );
+};
+
+// ─── Chart ────────────────────────────────────────────────────────────────────
+
+const Chart = ({ data = [], dataKey = 'ratio', showArea = true }) => {
+  const lastValue = data[data.length - 1]?.[dataKey] ?? 0;
+  const { color } = getStatus(dataKey === 'ratio' ? lastValue : 0.92);
+
+  // Memoise to avoid recreating gradient id strings on every render
+  const gradientId = useMemo(
+    () => `grad-${dataKey}-${Math.random().toString(36).slice(2, 6)}`,
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
+  const domainMap = {
+    ratio: [0.55, 1.0],
+    voltage: ['auto', 'auto'],
+    power: [0, 1100],
   };
 
+  const tickFormatter =
+    dataKey === 'ratio'
+      ? (v) => `${(v * 100).toFixed(0)}%`
+      : dataKey === 'power'
+      ? (v) => `${v}W`
+      : (v) => `${v}V`;
+
   const ChartComponent = showArea ? AreaChart : LineChart;
-  
+
   return (
-    <div className="w-full h-full">
+    <div style={{ width: '100%', height: '100%' }}>
       <ResponsiveContainer width="100%" height="100%">
-        <ChartComponent data={data} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+        <ChartComponent data={data} margin={{ top: 8, right: 4, left: -16, bottom: 0 }}>
           <defs>
-            <linearGradient id="colorRatio" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor={status.color.replace('bg-', '').includes('emerald') ? '#10b981' : status.color.replace('bg-', '').includes('amber') ? '#f59e0b' : '#ef4444'} stopOpacity={0.3}/>
-              <stop offset="95%" stopColor={status.color.replace('bg-', '').includes('emerald') ? '#10b981' : status.color.replace('bg-', '').includes('amber') ? '#f59e0b' : '#ef4444'} stopOpacity={0}/>
+            <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="5%" stopColor={color} stopOpacity={0.2} />
+              <stop offset="95%" stopColor={color} stopOpacity={0} />
             </linearGradient>
           </defs>
-          <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
-          <XAxis 
-            dataKey="time" 
-            stroke="#64748b" 
-            fontSize={11}
+
+          <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
+
+          <XAxis
+            dataKey="time"
+            stroke="#2D3F55"
+            tick={{ fill: '#64748B', fontSize: 10, fontFamily: 'var(--font-mono)' }}
             tickLine={false}
             axisLine={false}
-            dy={10}
+            dy={8}
+            interval="preserveStartEnd"
           />
-          <YAxis 
-            stroke="#64748b" 
-            fontSize={11}
+
+          <YAxis
+            stroke="#2D3F55"
+            tick={{ fill: '#64748B', fontSize: 10, fontFamily: 'var(--font-mono)' }}
             tickLine={false}
             axisLine={false}
-            domain={[0.6, 1.0]}
-            tickFormatter={(val) => `${(val * 100).toFixed(0)}%`}
+            domain={domainMap[dataKey] ?? ['auto', 'auto']}
+            tickFormatter={tickFormatter}
           />
-          <Tooltip content={<CustomTooltip />} />
-          
+
+          <Tooltip
+            content={<CustomTooltip dataKey={dataKey} />}
+            cursor={{ stroke: color, strokeWidth: 1, strokeDasharray: '3 3' }}
+          />
+
           {showArea && (
             <Area
               type="monotone"
               dataKey={dataKey}
-              stroke={status.color.replace('bg-', '').includes('emerald') ? '#10b981' : status.color.replace('bg-', '').includes('amber') ? '#f59e0b' : '#ef4444'}
-              fillOpacity={1}
-              fill="url(#colorRatio)"
+              stroke={color}
+              fill={`url(#${gradientId})`}
               strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 5, fill: color, strokeWidth: 0 }}
             />
           )}
-          
-          <Line
-            type="monotone"
-            dataKey={dataKey}
-            stroke={status.color.replace('bg-', '').includes('emerald') ? '#10b981' : status.color.replace('bg-', '').includes('amber') ? '#f59e0b' : '#ef4444'}
-            strokeWidth={3}
-            dot={{ r: 0 }}
-            activeDot={{ r: 6, strokeWidth: 0, fill: status.color.replace('bg-', '').includes('emerald') ? '#10b981' : status.color.replace('bg-', '').includes('amber') ? '#f59e0b' : '#ef4444' }}
-          />
+
+          {!showArea && (
+            <Line
+              type="monotone"
+              dataKey={dataKey}
+              stroke={color}
+              strokeWidth={2}
+              dot={false}
+              activeDot={{ r: 5, fill: color, strokeWidth: 0 }}
+            />
+          )}
         </ChartComponent>
       </ResponsiveContainer>
     </div>

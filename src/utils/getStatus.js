@@ -1,57 +1,41 @@
 /**
- * Centralized status logic for solar panel efficiency
- * @param {number} ratio - Soiling ratio (0-1)
- * @returns {Object} Status configuration
+ * Single source of truth for soiling ratio thresholds.
+ * Used by Dashboard, Chart, StatusBadge — everywhere.
+ *
+ * ratio >= 0.88  → optimal
+ * ratio >= 0.75  → warning
+ * ratio <  0.75  → critical
  */
 export const getStatus = (ratio) => {
-  if (ratio >= 0.88) {
+  if (ratio < 0.75) {
     return {
-      label: 'Optimal',
-      color: 'bg-emerald-500',
-      bgColor: 'bg-emerald-50',
-      textColor: 'text-emerald-700',
-      borderColor: 'border-emerald-200',
-      icon: 'check',
-      description: 'Peak performance'
+      key: 'critical',
+      label: 'Critical',
+      sub: 'Clean immediately',
+      badge: 'Critical',
+      color: '#EF4444',
+      colorDim: 'rgba(239,68,68,0.12)',
+      colorBorder: 'rgba(239,68,68,0.25)',
     };
   }
-  if (ratio >= 0.75) {
+  if (ratio < 0.88) {
     return {
+      key: 'warning',
       label: 'Warning',
-      color: 'bg-amber-500',
-      bgColor: 'bg-amber-50',
-      textColor: 'text-amber-700',
-      borderColor: 'border-amber-200',
-      icon: 'alert',
-      description: 'Performance degraded'
+      sub: 'Needs cleaning soon',
+      badge: 'Warning',
+      color: '#F59E0B',
+      colorDim: 'rgba(245,158,11,0.12)',
+      colorBorder: 'rgba(245,158,11,0.25)',
     };
   }
   return {
-    label: 'Critical',
-    color: 'bg-rose-500',
-    bgColor: 'bg-rose-50',
-    textColor: 'text-rose-700',
-    borderColor: 'border-rose-200',
-    icon: 'alert-triangle',
-    description: 'Immediate cleaning required'
+    key: 'optimal',
+    label: 'Optimal',
+    sub: 'Performing well',
+    badge: 'Optimal',
+    color: '#14B8A6',
+    colorDim: 'rgba(20,184,166,0.12)',
+    colorBorder: 'rgba(20,184,166,0.25)',
   };
-};
-
-/**
- * Format ratio as percentage
- */
-export const formatPercentage = (ratio) => {
-  return `${(ratio * 100).toFixed(1)}%`;
-};
-
-/**
- * Format timestamp to readable time
- */
-export const formatTime = (timestamp) => {
-  return new Date(timestamp).toLocaleTimeString('en-US', {
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: true
-  });
 };

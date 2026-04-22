@@ -38,6 +38,9 @@ const PanelCard = ({ panel, index }) => {
         <p className="flex items-center gap-1">
           <Zap size={14} /> Soiling: {(efficiency * 100).toFixed(1)}%
         </p>
+        <p className="font-semibold">
+          {efficiency < 0.75 ? 'Go and clean' : 'Normal'}
+        </p>
       </div>
 
       {/* Footer */}
