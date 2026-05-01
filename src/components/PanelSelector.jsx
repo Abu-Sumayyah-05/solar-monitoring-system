@@ -152,7 +152,7 @@ const PanelSelector = ({ panels = [], activePanelId, onChange }) => {
               onClick={() => {
                 setOpen(false);
                 alert(
-                  'To add a new panel, install a second SolarIQ device and register its panel-id in your Firebase database under /panels.'
+                  'To add a new panel, install a second SolarIQ device and register its panel-id in your backend database under /panels.'
                 );
               }}
               style={{
