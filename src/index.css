@@ -65,17 +65,22 @@ html, body, #root {
   }
 }
 
-@media (max-width: 600px) {
+@media (max-width: 700px) {
   .dashboard-main-grid {
+    grid-template-columns: 1fr !important;
     gap: 10px !important;
-  }
-  .dashboard-padding {
-    padding: 4px !important;
   }
   .dashboard-header {
     flex-direction: column !important;
     gap: 12px !important;
     align-items: flex-start !important;
+    margin-bottom: 16px !important;
+  }
+  .dashboard-padding {
+    padding: 4px !important;
+  }
+  h1 {
+    font-size: 15px !important;
   }
 }
 

@@ -13,6 +13,8 @@ import {
   setReportingInterval,
   generateHistory,
   markPanelAsCleaned,
+  setPanelArea as savePanelArea,
+  setPanelEfficiency as savePanelEfficiency,
 } from '../services/panelService';
   // Handler to mark panel as cleaned
   const handleMarkAsCleaned = async () => {
@@ -102,7 +104,8 @@ const Dashboard = () => {
   const [intervalVal, setIntervalVal] = useState(1800);
   const [error, setError]             = useState(null);
   const [panelArea, setPanelArea]     = useState(1.0);
-  const [panelEff, setPanelEff]       = useState(0.2);
+  // Panel efficiency as a percentage (0-100)
+  const [panelEff, setPanelEff]       = useState(21);
 
   // ── Load panel list on mount ──────────────────────────────────────────────
   useEffect(() => {
@@ -217,7 +220,7 @@ const Dashboard = () => {
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
 
         {/* Header */}
-        <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
+        <header className="dashboard-header" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 24 }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <div style={{ width: 36, height: 36, background: '#BA7517', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Sun size={18} style={{ color: '#FFF' }} />
@@ -247,7 +250,7 @@ const Dashboard = () => {
         )}
 
         {/* Main grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 14, alignItems: 'start' }}>
+        <div className="dashboard-main-grid" style={{ display: 'grid', gridTemplateColumns: '420px 1fr', gap: 14, alignItems: 'start' }}>
 
           {/* LEFT */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -323,13 +326,42 @@ const Dashboard = () => {
               <div style={{ display: 'flex', gap: 10 }}>
                 <div style={{ flex: 1 }}>
                   <p style={{ fontSize: 9, color: '#475569', letterSpacing: '0.05em' }}>PANEL AREA (m²)</p>
-                  <input type="number" min="0.01" step="0.01" value={panelArea} onChange={e => setPanelArea(parseFloat(e.target.value))}
-                    style={{ width: '100%', background: '#111827', border: '0.5px solid #1E293B', color: '#94A3B8', fontSize: 11, padding: '4px 8px', borderRadius: 8, fontFamily: 'var(--font-mono)' }} />
+                  <input
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    value={panelArea}
+                    onChange={e => {
+  const val = parseFloat(e.target.value);
+
+  setPanelArea(val); // React state update
+
+  if (activePanelId && !isNaN(val)) {
+    savePanelArea(activePanelId, val); // Firebase write
+  }
+}}
+                    style={{ width: '100%', background: '#111827', border: '0.5px solid #1E293B', color: '#94A3B8', fontSize: 11, padding: '4px 8px', borderRadius: 8, fontFamily: 'var(--font-mono)' }}
+                  />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <p style={{ fontSize: 9, color: '#475569', letterSpacing: '0.05em' }}>PANEL EFFICIENCY</p>
-                  <input type="number" min="0.01" max="1" step="0.01" value={panelEff} onChange={e => setPanelEff(parseFloat(e.target.value))}
-                    style={{ width: '100%', background: '#111827', border: '0.5px solid #1E293B', color: '#94A3B8', fontSize: 11, padding: '4px 8px', borderRadius: 8, fontFamily: 'var(--font-mono)' }} />
+                  <p style={{ fontSize: 9, color: '#475569', letterSpacing: '0.05em' }}>PANEL EFFICIENCY (%)</p>
+                  <input
+                    type="number"
+                    min="1"
+                    max="100"
+                    step="0.1"
+                    value={panelEff}
+                    onChange={e => {
+  const val = parseFloat(e.target.value);
+
+  setPanelEff(val); // React state update
+
+  if (activePanelId && !isNaN(val)) {
+    savePanelEfficiency(activePanelId, val / 100); // Firebase write
+  }
+}}
+                    style={{ width: '100%', background: '#111827', border: '0.5px solid #1E293B', color: '#94A3B8', fontSize: 11, padding: '4px 8px', borderRadius: 8, fontFamily: 'var(--font-mono)' }}
+                  />
                 </div>
               </div>
             </div>
