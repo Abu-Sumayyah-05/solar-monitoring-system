@@ -44,8 +44,7 @@ const PanelCard = ({ panel, index }) => {
       </div>
 
       {/* Footer */}
-      <div className="flex justify-between mt-3 text-xs text-gray-500">
-        <span>{panel.timestamp}</span>
+      <div className="flex justify-end mt-3 text-xs text-gray-500">
         <span className="flex items-center gap-1">
           Details <ArrowUpRight size={14} />
         </span>

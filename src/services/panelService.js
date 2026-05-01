@@ -22,7 +22,6 @@ import {
   push,
   query,
   limitToLast,
-  serverTimestamp,
 } from 'firebase/database';
 
 // ─── Get all panels (for PanelSelector dropdown) ─────────────────────────────
@@ -82,18 +81,11 @@ export const generateHistory = async (panelId) => {
   if (!snap.exists()) return [];
 
   return Object.values(snap.val())
-    .sort((a, b) => (a.timestamp ?? 0) - (b.timestamp ?? 0))
     .map((r) => ({
       ...r,
-      time: r.timestamp
-        ? new Date(r.timestamp).toLocaleTimeString('en-US', {
-            hour: '2-digit',
-            minute: '2-digit',
-          })
-        : '--:--',
       ratio: r.ratio ?? 0,
-      voltage: r.voltage ?? 0,
-      current: r.current ?? 0,
+     voltage: data.voltage,
+    current: data.current,
       lux: r.lux ?? 0,
       actualPower: r.actualPower ?? 0,
       expectedPower: r.expectedPower ?? 0,
@@ -117,7 +109,6 @@ export const setReportingInterval = (panelId, seconds) => {
 export const pushHistoryRecord = (panelId, record) => {
   return push(ref(db, `history/${panelId}`), {
     ...record,
-    timestamp: Date.now(),
   });
 };
 

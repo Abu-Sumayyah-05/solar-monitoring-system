@@ -33,7 +33,7 @@ const MetricCard = ({ icon, label, value, unit, accent = '#64748B' }) => (
     <div>
       <p style={{ fontSize: 10, color: '#64748B', marginBottom: 3, letterSpacing: '0.04em' }}>{label}</p>
       <p style={{ fontSize: 20, fontWeight: 700, color: '#F0F4FF', lineHeight: 1 }}>
-        {value ?? '—'}
+        {(value !== undefined && value !== null) ? value : 0}
         {unit && <span style={{ fontSize: 12, color: '#334155', marginLeft: 3 }}>{unit}</span>}
       </p>
     </div>
@@ -139,7 +139,8 @@ const Dashboard = () => {
         actualPower:    data?.actualPower    ?? Math.round((data?.ratio ?? 0.9) * 1000),
         temperature:    data?.temperature    ?? 0,
         lastCleaned:    data?.lastCleaned    ?? 'Unknown',
-        timestamp:      data?.timestamp      ?? Date.now(),
+        voltage: data?.voltage ?? 0,
+       current: data?.current ?? 0,
       };
       setPanelData(safe);
       setPulse(true);

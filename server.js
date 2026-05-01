@@ -45,7 +45,6 @@ app.post('/api/panel-data', (req, res) => {
     actualPower,
     expectedPower,
     ratio,
-    timestamp
   } = req.body;
   if (
     !panelId ||
@@ -55,7 +54,6 @@ app.post('/api/panel-data', (req, res) => {
     actualPower === undefined ||
     expectedPower === undefined ||
     ratio === undefined ||
-    !timestamp
   ) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
@@ -68,7 +66,6 @@ app.post('/api/panel-data', (req, res) => {
     actualPower,
     expectedPower,
     ratio,
-    timestamp
   });
   console.log('Received data:', {
     panelId,
@@ -80,7 +77,6 @@ app.post('/api/panel-data', (req, res) => {
     ratio,
     sensor1,
     sensor2,
-    timestamp
   });
   res.status(200).json({ message: 'Data received successfully' });
 });
